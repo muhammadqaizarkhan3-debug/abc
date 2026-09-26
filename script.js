@@ -176,3 +176,135 @@ if (backToTop) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
+
+// ---------- AI Chatbot Widget ----------
+
+const chatbotToggle = document.getElementById('chatbotToggle');
+const chatbotWindow = document.getElementById('chatbotWindow');
+const chatbotClose = document.getElementById('chatbotClose');
+const chatbotMessages = document.getElementById('chatbotMessages');
+const chatbotTypingIndicator = document.getElementById('chatbotTypingIndicator');
+const chatbotForm = document.getElementById('chatbotForm');
+const chatbotInput = document.getElementById('chatbotInput');
+const chatbotSend = document.getElementById('chatbotSend');
+
+if (chatbotToggle && chatbotWindow && chatbotForm) {
+
+  const CHATBOT_SYSTEM_PROMPT =
+    'You are a helpful assistant for this portfolio website. Keep answers concise and friendly, under 3 sentences.';
+
+  // Holds the running conversation in Gemini's format:
+  // { role: 'user' | 'model', parts: [{ text: '...' }] }
+  const chatbotHistory = [];
+
+  function openChatbot() {
+    chatbotWindow.classList.add('is-open');
+    chatbotInput.focus();
+  }
+
+  function closeChatbot() {
+    chatbotWindow.classList.remove('is-open');
+  }
+
+  function toggleChatbot() {
+    if (chatbotWindow.classList.contains('is-open')) {
+      closeChatbot();
+    } else {
+      openChatbot();
+    }
+  }
+
+  function appendMessage(text, type) {
+    // type: 'bot' | 'user' | 'error'
+    const bubble = document.createElement('div');
+    bubble.className = `chatbot-message chatbot-message-${type}`;
+    bubble.textContent = text;
+    chatbotMessages.appendChild(bubble);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+    return bubble;
+  }
+
+  function showTyping() {
+    chatbotTypingIndicator.style.display = 'flex';
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }
+
+  function hideTyping() {
+    chatbotTypingIndicator.style.display = 'none';
+  }
+
+  function setInputEnabled(enabled) {
+    chatbotInput.disabled = !enabled;
+    chatbotSend.disabled = !enabled;
+  }
+
+  async function sendChatbotMessage(userText) {
+    chatbotHistory.push({ role: 'user', parts: [{ text: userText }] });
+
+    setInputEnabled(false);
+    showTyping();
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemPrompt: CHATBOT_SYSTEM_PROMPT,
+          contents: chatbotHistory
+        })
+      });
+
+      // Read as text first, then parse, so an empty or malformed
+      // response body doesn't throw an uncaught JSON error.
+      const rawText = await response.text();
+      let data = null;
+
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (parseErr) {
+          throw new Error('Received an invalid response from the server.');
+        }
+      }
+
+      if (!response.ok || !data) {
+        throw new Error('The assistant is unavailable right now.');
+      }
+
+      const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!replyText) {
+        throw new Error('No reply was returned by the assistant.');
+      }
+
+      chatbotHistory.push({ role: 'model', parts: [{ text: replyText }] });
+      hideTyping();
+      appendMessage(replyText, 'bot');
+
+    } catch (err) {
+      hideTyping();
+      appendMessage(
+        'Sorry, something went wrong reaching the assistant. Please try again in a moment.',
+        'error'
+      );
+      // Remove the unanswered user turn so a retry doesn't duplicate it.
+      chatbotHistory.pop();
+    } finally {
+      setInputEnabled(true);
+      chatbotInput.focus();
+    }
+  }
+
+  chatbotToggle.addEventListener('click', toggleChatbot);
+  chatbotClose.addEventListener('click', closeChatbot);
+
+  chatbotForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = chatbotInput.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    chatbotInput.value = '';
+    sendChatbotMessage(text);
+  });
+}

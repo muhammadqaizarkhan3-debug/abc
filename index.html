@@ -107,6 +107,40 @@
 
 <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
+<!-- ---------- AI Chatbot Widget ---------- -->
+<div class="chatbot-widget">
+  <button class="chatbot-toggle" id="chatbotToggle" aria-label="Open chat assistant">💬</button>
+
+  <div class="chatbot-window" id="chatbotWindow">
+    <div class="chatbot-header">
+      <span class="chatbot-header-title">Ask me anything</span>
+      <button class="chatbot-close" id="chatbotClose" aria-label="Close chat">✕</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatbotMessages">
+      <div class="chatbot-message chatbot-message-bot">
+        Hi! I'm an assistant for this portfolio. Ask me anything about Muhammad Qaizar Khan.
+      </div>
+    </div>
+
+    <div class="chatbot-typing-indicator" id="chatbotTypingIndicator" style="display: none;">
+      <span></span><span></span><span></span>
+    </div>
+
+    <form class="chatbot-input-bar" id="chatbotForm">
+      <input
+        type="text"
+        id="chatbotInput"
+        class="chatbot-input"
+        placeholder="Type a message..."
+        autocomplete="off"
+        aria-label="Type your message"
+      >
+      <button type="submit" class="chatbot-send" id="chatbotSend" aria-label="Send message">➤</button>
+    </form>
+  </div>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>
