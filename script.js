@@ -220,15 +220,43 @@ if (contactForm) {
 
 // ---------- Scroll-reveal animation for content sections ----------
 
-const revealTargets = document.querySelectorAll('.reveal');
+// Which elements reveal on scroll (on every page), and with which animation.
+// type: 'up' | 'left' | 'zoom' | 'fade'. stagger: items that enter together
+// appear one after another instead of all at once.
+const REVEAL_RULES = [
+  { selector: '.page-lead', type: 'up' },
+  { selector: '.hero', type: 'up' },
+  { selector: '.stats-bar .stat-card', type: 'zoom', stagger: true },
+  { selector: '.content-section', type: 'up' },
+  { selector: '.achievement-item, .activity-item', type: 'left', stagger: true },
+  { selector: 'footer', type: 'fade' }
+];
+
+const revealTargets = [];
+
+REVEAL_RULES.forEach((rule) => {
+  document.querySelectorAll(rule.selector).forEach((el) => {
+    el.classList.add('reveal');
+    el.dataset.reveal = rule.type;
+    if (rule.stagger) el.dataset.stagger = '1';
+    revealTargets.push(el);
+  });
+});
 
 if (revealTargets.length && 'IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver((entries) => {
+    let order = 0;
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        revealObserver.unobserve(entry.target);
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+
+      if (el.dataset.stagger) {
+        el.style.setProperty('--reveal-delay', `${Math.min(order, 5) * 90}ms`);
+        order++;
       }
+
+      el.classList.add('is-visible');
+      revealObserver.unobserve(el);
     });
   }, { threshold: 0.12 });
 
