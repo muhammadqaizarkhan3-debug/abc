@@ -548,6 +548,62 @@ footer {
   transform: scale(0.97);
 }
 
+.contact-form.is-hidden {
+  display: none;
+}
+
+.thank-you {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  max-width: 520px;
+  margin-top: 16px;
+  padding: 36px 24px;
+  background: var(--item-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 14px;
+}
+
+.thank-you.is-visible {
+  display: flex;
+  animation: thank-you-in 0.35s ease;
+}
+
+.thank-you-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thank-you h4 {
+  font-size: 20px;
+  color: var(--text-dark);
+}
+
+.thank-you p {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+@keyframes thank-you-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thank-you.is-visible { animation: none; }
+}
+
 .form-note {
   margin-top: 14px;
   font-size: 14px;
@@ -630,6 +686,70 @@ footer {
 
 .chatbot-toggle:active {
   transform: scale(0.95);
+}
+
+/* ---------- Chatbot popup greeting ---------- */
+
+.chatbot-popup {
+  position: absolute;
+  bottom: 74px;
+  right: 0;
+  width: 240px;
+  max-width: calc(100vw - 40px);
+  background: var(--chatbot-bg);
+  color: var(--chatbot-text);
+  border: 1px solid var(--chatbot-border);
+  border-radius: 14px 14px 4px 14px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.2);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.chatbot-popup.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.chatbot-popup-text {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  padding: 12px 34px 12px 14px;
+  cursor: pointer;
+}
+
+.chatbot-popup-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--chatbot-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatbot-popup-close:hover {
+  background: var(--chatbot-bubble-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chatbot-popup { transition: none; transform: none; }
 }
 
 .chatbot-window {

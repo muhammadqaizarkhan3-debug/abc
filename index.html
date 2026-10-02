@@ -118,6 +118,14 @@
 
 <!-- ---------- AI Chatbot Widget ---------- -->
 <div class="chatbot-widget">
+  <!-- Popup greeting (index page only) -->
+  <div class="chatbot-popup" id="chatbotPopup" role="status" aria-live="polite">
+    <button class="chatbot-popup-text" id="chatbotPopupText" type="button">
+      Hi there! 👋 Have a question about Qaizar? Ask me anything.
+    </button>
+    <button class="chatbot-popup-close" id="chatbotPopupClose" type="button" aria-label="Dismiss message">✕</button>
+  </div>
+
   <button class="chatbot-toggle" id="chatbotToggle" aria-label="Open chat assistant">💬</button>
 
   <div class="chatbot-window" id="chatbotWindow">

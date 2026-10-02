@@ -158,11 +158,63 @@ const contactForm = document.getElementById('contactForm');
 const formNote = document.getElementById('formNote');
 
 if (contactForm) {
-  contactForm.addEventListener('submit', function (e) {
+  const submitBtn = contactForm.querySelector('button[type="submit"]');
+  const WEB3FORMS_URL = 'https://api.web3forms.com/submit';
+  const THANK_YOU_MS = 4000; // how long the form stays hidden
+  const thankYou = document.getElementById('thankYou');
+  const thankYouTitle = document.getElementById('thankYouTitle');
+  let thankYouTimer = null;
+
+  // Hides the form, shows the thank-you note, then brings the form back
+  function showThankYou(name) {
+    thankYouTitle.textContent = name ? `Thank you, ${name}!` : 'Thank you!';
+    contactForm.classList.add('is-hidden');
+    thankYou.classList.add('is-visible');
+    formNote.textContent = '';
+
+    clearTimeout(thankYouTimer);
+    thankYouTimer = setTimeout(() => {
+      thankYou.classList.remove('is-visible');
+      contactForm.classList.remove('is-hidden');
+    }, THANK_YOU_MS);
+  }
+
+  contactForm.addEventListener('submit', async function (e) {
     e.preventDefault();
+
     const name = document.getElementById('name').value.trim();
-    formNote.textContent = `Thanks ${name || 'there'}, your message has been noted. I will get back to you soon.`;
-    contactForm.reset();
+    const formData = new FormData(contactForm);
+
+    // Safety check: the access key still needs to be added in contact.html
+    if (formData.get('access_key') === 'YOUR_ACCESS_KEY_HERE') {
+      formNote.textContent = 'The contact form is not set up yet. Please add your Web3Forms access key.';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    formNote.textContent = '';
+
+    try {
+      const response = await fetch(WEB3FORMS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(formData))
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Message could not be sent.');
+      }
+
+      contactForm.reset();
+      showThankYou(name);
+    } catch (err) {
+      formNote.textContent = 'Sorry, your message could not be sent. Please try again in a moment.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+    }
   });
 }
 
@@ -258,7 +310,48 @@ if (chatbotToggle && chatbotWindow && chatbotForm) {
   // { role: 'user' | 'model', parts: [{ text: '...' }] }
   const chatbotHistory = [];
 
+  // ----- Popup greeting (only exists in index.html) -----
+  const chatbotPopup = document.getElementById('chatbotPopup');
+  const chatbotPopupText = document.getElementById('chatbotPopupText');
+  const chatbotPopupClose = document.getElementById('chatbotPopupClose');
+
+  const POPUP_SEEN_KEY = 'chatbot-popup-seen';
+  const POPUP_DELAY_MS = 3000;      // wait before showing
+  const POPUP_VISIBLE_MS = 12000;   // auto-hide after this long
+  let popupShowTimer = null;
+  let popupHideTimer = null;
+
+  function hideChatbotPopup() {
+    clearTimeout(popupShowTimer);
+    clearTimeout(popupHideTimer);
+    if (chatbotPopup) chatbotPopup.classList.remove('is-visible');
+  }
+
+  function showChatbotPopup() {
+    if (!chatbotPopup || chatbotWindow.classList.contains('is-open')) return;
+    chatbotPopup.classList.add('is-visible');
+    try { sessionStorage.setItem(POPUP_SEEN_KEY, '1'); } catch (e) { /* storage unavailable */ }
+    popupHideTimer = setTimeout(hideChatbotPopup, POPUP_VISIBLE_MS);
+  }
+
+  if (chatbotPopup) {
+    let alreadySeen = false;
+    try { alreadySeen = sessionStorage.getItem(POPUP_SEEN_KEY) === '1'; } catch (e) { /* ignore */ }
+
+    // Show once per browser session so it doesn't nag on every reload
+    if (!alreadySeen) {
+      popupShowTimer = setTimeout(showChatbotPopup, POPUP_DELAY_MS);
+    }
+
+    chatbotPopupClose.addEventListener('click', hideChatbotPopup);
+    chatbotPopupText.addEventListener('click', () => {
+      hideChatbotPopup();
+      openChatbot();
+    });
+  }
+
   function openChatbot() {
+    hideChatbotPopup();
     chatbotWindow.classList.add('is-open');
     chatbotInput.focus();
   }
