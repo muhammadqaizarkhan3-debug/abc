@@ -122,6 +122,48 @@ a { color: inherit; }
 .theme-toggle:hover { transform: scale(1.08); }
 .theme-toggle:active { transform: scale(0.94); }
 
+/* ---------- Weather widget ---------- */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weather-widget {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.weather-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.weather-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.weather-temp {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.weather-city {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 /* ---------- Page hero ---------- */
 
 .page-lead {
@@ -535,6 +577,8 @@ footer {
 @media (max-width: 700px) {
   .site-header { padding: 14px 16px; }
   .main-nav a { padding: 7px 10px; font-size: 13px; }
+  .weather-widget { padding: 4px 10px 4px 8px; }
+  .weather-city { display: none; }
   .hero { flex-direction: column-reverse; margin: 20px 16px; }
   .intro { padding: 30px; }
   .page-lead { padding: 0 16px; margin-top: 26px; }

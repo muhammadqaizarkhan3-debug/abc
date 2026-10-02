@@ -30,6 +30,65 @@ function toggleTheme() {
 applyTheme(getPreferredTheme());
 toggleBtn.addEventListener('click', toggleTheme);
 
+// ---------- Weather widget (Faisalabad) ----------
+
+const weatherWidget = document.getElementById('weatherWidget');
+
+if (weatherWidget) {
+  const weatherIconEl = document.getElementById('weatherIcon');
+  const weatherTempEl = document.getElementById('weatherTemp');
+  const weatherDescEl = document.getElementById('weatherDesc');
+
+  // Open-Meteo: free, no API key needed. Faisalabad = 31.4504, 73.1350
+  const WEATHER_URL =
+    'https://api.open-meteo.com/v1/forecast' +
+    '?latitude=31.4504&longitude=73.1350' +
+    '&current=temperature_2m,weather_code' +
+    '&timezone=Asia%2FKarachi';
+
+  const WEATHER_REFRESH_MS = 5 * 1000; // refresh every 5 seconds
+
+  // Maps WMO weather codes from Open-Meteo to an emoji and a label
+  function describeWeather(code) {
+    if (code === 0) return ['☀️', 'Clear'];
+    if (code === 1) return ['🌤️', 'Mostly clear'];
+    if (code === 2) return ['⛅', 'Partly cloudy'];
+    if (code === 3) return ['☁️', 'Overcast'];
+    if (code === 45 || code === 48) return ['🌫️', 'Fog'];
+    if (code >= 51 && code <= 57) return ['🌦️', 'Drizzle'];
+    if (code >= 61 && code <= 67) return ['🌧️', 'Rain'];
+    if (code >= 71 && code <= 77) return ['❄️', 'Snow'];
+    if (code >= 80 && code <= 82) return ['🌧️', 'Showers'];
+    if (code >= 95) return ['⛈️', 'Thunderstorm'];
+    return ['🌡️', 'Weather'];
+  }
+
+  async function loadWeather() {
+    try {
+      const response = await fetch(WEATHER_URL);
+      if (!response.ok) throw new Error('Weather request failed');
+
+      const data = await response.json();
+      const temp = data?.current?.temperature_2m;
+      const code = data?.current?.weather_code;
+
+      if (typeof temp !== 'number') throw new Error('No temperature returned');
+
+      const [icon, label] = describeWeather(code);
+      weatherIconEl.textContent = icon;
+      weatherTempEl.textContent = `${Math.round(temp)}°C`;
+      weatherDescEl.textContent = label;
+    } catch (err) {
+      weatherIconEl.textContent = '🌡️';
+      weatherTempEl.textContent = '--°C';
+      weatherDescEl.textContent = 'Unavailable';
+    }
+  }
+
+  loadWeather();
+  setInterval(loadWeather, WEATHER_REFRESH_MS);
+}
+
 // ---------- Multi-phrase typing animation (only present on index.html) ----------
 
 const typingTextEl = document.getElementById('typingText');
@@ -37,10 +96,12 @@ const typingGhostEl = document.getElementById('typingGhost');
 
 if (typingTextEl && typingGhostEl) {
   const phrases = [
+    'School Head Boy',
     'Computer Science Student',
     'Model United Nations Delegate',
     'Debating Society Leader',
-    'Community Volunteer'
+    'Community Volunteer',
+    'AI-Assisted Web Developer'
   ];
 
   // Reserve layout space for the longest phrase up front, so the

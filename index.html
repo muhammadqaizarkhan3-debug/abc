@@ -20,7 +20,16 @@
       <a href="experience.html">Experience</a>
       <a href="contact.html">Contact</a>
     </nav>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+    <div class="header-actions">
+      <div class="weather-widget" id="weatherWidget" title="Current weather in Faisalabad">
+        <span class="weather-icon" id="weatherIcon" aria-hidden="true">⏳</span>
+        <div class="weather-text">
+          <span class="weather-temp" id="weatherTemp">--°C</span>
+          <span class="weather-city">Faisalabad · <span id="weatherDesc">Loading</span></span>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
   </div>
 </header>
 
